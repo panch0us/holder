@@ -35,91 +35,99 @@ fn property_data_input() -> Property {
         date_current.day())
         .unwrap();
 
-
     println!("Введите название имущества: ");
     io::stdin()
         .read_line(&mut title)
         .expect("Ошибка ввода на этапе read_line");
-
-    println!("Введите название вида имущества: ");
-    io::stdin()
-        .read_line(&mut kind)
-        .expect("Ошибка ввода на этапе read_line");
-
-    println!("Введите название серийного номера имущества: ");
-    io::stdin()
-        .read_line(&mut serial_num)
-        .expect("Ошибка ввода на этапе read_line");
-
-
-    println!("Ввести текущую дату добавления имущества в базу? (y/n?)");
-    io::stdin()
-        .read_line(&mut date_question)
-        .expect("Ошибка ввода на этапе read_line");
-
-    let date_question: String = match date_question.trim().parse() {
-        Ok(ok) => ok,
-        Err(error) => panic!("Ошибка ввода обработки вопроса о дате: {:?}", error),
-    };
-
-    if date_question == 'n'.to_string().to_lowercase() || date_question == 'н'.to_string().to_lowercase() {
-        println!("Введите год добавления имущества в БД: (формат: 0000)");
-        io::stdin()
-            .read_line(&mut year)
-            .expect("Ошибка ввода на этапе read_line");
-
-        println!("Введите месяц добавления имущества в БД : (формат: 00): ");
-        io::stdin()
-            .read_line(&mut month)
-            .expect("Ошибка ввода на этапе read_line");
-
-        println!("Введите день добавления имущества в БД : (формат: 00): ");
-        io::stdin()
-            .read_line(&mut day)
-            .expect("Ошибка ввода на этапе read_line");
-
-        let year: i32 = match year.trim().parse() {
-            Ok(ok) => ok,
-            Err(error) => panic!("Ошибка ввода обработки года: {:?}", error),
-        };
-
-        let month: u32 = match month.trim().parse() {
-            Ok(ok) => ok,
-            Err(error) => panic!("Ошибка ввода обработки месяца: {:?}", error),
-        };
-
-        let day: u32 = match day.trim().parse() {
-            Ok(ok) => ok,
-            Err(error) => panic!("Ошибка ввода обработки дня: {:?}", error),
-        };
-
-        receipt_date = NaiveDate::from_ymd_opt(
-            year,
-            month,
-            day)
-            .unwrap();
-    } else if date_question == 'y'.to_string().to_lowercase() || date_question == 'д'.to_string().to_lowercase(){
-        println!("Дата {} введена автоматически", receipt_date);
-    } else {
-        println!("Указано неверное значение, повторите ввод!");
-    }
-
 
     let title: String = match title.trim().parse() {
         Ok(ok) => ok,
         Err(error) => panic!("Ошибка ввода обработки названия имущества: {:?}", error),
     };
 
+    println!("Введите название вида имущества: ");
+    io::stdin()
+        .read_line(&mut kind)
+        .expect("Ошибка ввода на этапе read_line");
+
     let kind: String = match kind.trim().parse() {
         Ok(ok) => ok,
         Err(error) => panic!("Ошибка ввода обработки названия вида имущества: {:?}", error),
     };
+
+    println!("Введите название серийного номера имущества: ");
+    io::stdin()
+        .read_line(&mut serial_num)
+        .expect("Ошибка ввода на этапе read_line");
 
     let serial_num: String = match serial_num.trim().parse() {
         Ok(ok) => ok,
         Err(error) => panic!("Ошибка ввода обработки названия сер. номера: {:?}", error),
     };
 
+    while date_question != "y".to_string() {
+        println!("while1: {}", date_question);
+        if date_question == String::from("yes") {
+            println!("ВЕРНО!");
+        }
+        println!("Ввести текущую дату добавления имущества в базу? (y/n?)");
+        io::stdin()
+            .read_line(&mut date_question)
+            .expect("Ошибка ввода на этапе read_line");
+
+        let date_question: String = match date_question.trim().parse() {
+            Ok(ok) => ok,
+            Err(error) => panic!("Ошибка ввода обработки вопроса о дате: {:?}", error),
+        };
+
+        println!("while2: {}", date_question);
+
+        if date_question == 'n'.to_string().to_lowercase() || date_question == 'н'.to_string().to_lowercase() {
+            println!("Введите год добавления имущества в БД: (формат: 0000)");
+            io::stdin()
+                .read_line(&mut year)
+                .expect("Ошибка ввода на этапе read_line");
+
+            println!("Введите месяц добавления имущества в БД : (формат: 00): ");
+            io::stdin()
+                .read_line(&mut month)
+                .expect("Ошибка ввода на этапе read_line");
+
+            println!("Введите день добавления имущества в БД : (формат: 00): ");
+            io::stdin()
+                .read_line(&mut day)
+                .expect("Ошибка ввода на этапе read_line");
+
+            let year: i32 = match year.trim().parse() {
+                Ok(ok) => ok,
+                Err(error) => panic!("Ошибка ввода обработки года: {:?}", error),
+            };
+
+            let month: u32 = match month.trim().parse() {
+                Ok(ok) => ok,
+                Err(error) => panic!("Ошибка ввода обработки месяца: {:?}", error),
+            };
+
+            let day: u32 = match day.trim().parse() {
+                Ok(ok) => ok,
+                Err(error) => panic!("Ошибка ввода обработки дня: {:?}", error),
+            };
+
+            receipt_date = NaiveDate::from_ymd_opt(
+                year,
+                month,
+                day)
+                .unwrap();
+        } else if date_question == 'y'.to_string() || date_question == 'д'.to_string() {
+            println!("Дата {} введена автоматически", receipt_date);
+            println!("while3: {}", date_question);
+            let date_question = "y".to_string();
+        } else {
+            println!("Указано неверное значение, повторите ввод!");
+        }
+    }
+
+    println!("result: {}", date_question);
 
     let mut property = Property {
         title: title,
@@ -146,15 +154,12 @@ fn employee_data_input() -> io::Result<()>{
 
 
 fn main() {
-
     let mut property = property_data_input();
 
     let emp = Employee {
         surname: "Savkin".to_string(),
         name: "Pavel".to_string(),
         };
-
-
 
     println!("{:#?}", property);
     println!("{:#?}", emp);
