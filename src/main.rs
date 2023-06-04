@@ -2,7 +2,7 @@ use std::io;
 use rusqlite::{params, Connection, Result};
 use chrono::{Datelike, DateTime, Local, NaiveDate};
 
-
+#[derive(Debug)]
 struct Property {
     title: String,
     kind: String,
@@ -20,39 +20,56 @@ struct PropertyKind {
     note: String,
 }
 
-fn open_my_db() -> Result<()> {
+fn create_db() -> Result<()> {
     let path = "holder.db3";
-    let conn = Connection::open(path)?;
-    // Use the database somehow...
-    //println!("{}", db.is_autocommit());
+    let conn = Connection::open(path).unwrap();
 
     conn.execute(
-        "CREATE TABLE person (
-            id   INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            data BLOB
+        "CREATE TABLE property (
+            id    INTEGER PRIMARY KEY,
+            kind  TEXT NOT NULL,
+            serial_num  TEXT NOT NULL,
+            receipt_date TEXT NOT NULL
         )",
-        (), // empty list of parameters.
+        (),
     )?;
 
     Ok(())
 }
 
-fn add_property_kind() {
-    let prop_kind_1 = PropertyKind {
-        title: "Монитор".to_string(),
-        note: "".to_string(),
-    };
+fn add_property_in_db(property: Property) -> Result<()> {
+    let path = "holder.db3";
+    let conn = Connection::open(path).unwrap();
 
-    let prop_kind_2 = PropertyKind {
-        title: "Системный блок".to_string(),
-        note: "".to_string(),
-    };
+    let property = property;
+    conn.execute(
+        "INSERT INTO person (name, data, serial_num, receipt_date) VALUES (?1, ?2, ?3, ?4)",
+        (&property.title, &property.kind, &property.serial_num, &property.receipt_date.to_string()),
+    )?;
 
-    let prop_kind_3 = PropertyKind {
-        title: "Принтер".to_string(),
-        note: "".to_string(),
-    };
+    Ok(())
+}
+
+fn select_all_property() -> Result<()> {
+    let path = "holder.db3";
+    let conn = Connection::open(path).unwrap();
+
+    let mut stmt = conn.prepare("SELECT id, title, kind, serial_num, receipt_date FROM property")?;
+
+
+    let property_iter = stmt.query_map([], |row| {
+        Ok(Property {
+            title: row.get(1)?,
+            kind: row.get(2)?,
+            serial_num: row.get(3)?,
+            receipt_date: row.get(4)?,
+        })
+    })?;
+
+    for property in property_iter {
+        println!("Found person {:?}", property.unwrap());
+    }
+    Ok(())
 }
 
 
@@ -172,14 +189,19 @@ fn add_property() -> Property {
 
 
 fn main() {
+    let conn = create_db();
 
     let property = add_property();
 
+    add_property_in_db(property);
+
+
+    /*
     println!("В БД добавлено имущество: {} - {} - {} - {}",
              property.title,
              property.kind,
              property.serial_num,
              property.receipt_date,
     );
-
+    */
 }
