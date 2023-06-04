@@ -1,4 +1,5 @@
 use std::io;
+use rusqlite::{params, Connection, Result};
 use chrono::{Datelike, DateTime, Local, NaiveDate};
 
 
@@ -13,12 +14,47 @@ struct Employee {
     surname: String,
     name: String,
 }
-
+*/
 struct PropertyKind {
     title: String,
     note: String,
 }
-*/
+
+fn open_my_db() -> Result<()> {
+    let path = "holder.db3";
+    let conn = Connection::open(path)?;
+    // Use the database somehow...
+    //println!("{}", db.is_autocommit());
+
+    conn.execute(
+        "CREATE TABLE person (
+            id   INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            data BLOB
+        )",
+        (), // empty list of parameters.
+    )?;
+
+    Ok(())
+}
+
+fn add_property_kind() {
+    let prop_kind_1 = PropertyKind {
+        title: "Монитор".to_string(),
+        note: "".to_string(),
+    };
+
+    let prop_kind_2 = PropertyKind {
+        title: "Системный блок".to_string(),
+        note: "".to_string(),
+    };
+
+    let prop_kind_3 = PropertyKind {
+        title: "Принтер".to_string(),
+        note: "".to_string(),
+    };
+}
+
 
 fn add_property() -> Property {
     // Данные об имуществе для внесения в БД
@@ -60,6 +96,8 @@ fn add_property() -> Property {
     io::stdin()
         .read_line(&mut serial_num)
         .expect("Ошибка ввода на этапе read_line");
+
+
 
     let serial_num: String = match serial_num.trim().parse() {
         Ok(ok) => ok,
@@ -134,6 +172,7 @@ fn add_property() -> Property {
 
 
 fn main() {
+
     let property = add_property();
 
     println!("В БД добавлено имущество: {} - {} - {} - {}",
