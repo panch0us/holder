@@ -15,11 +15,12 @@ struct Employee {
     surname: String,
     name: String,
 }
-*/
+
 struct PropertyKind {
     title: String,
     note: String,
 }
+*/
 
 fn create_db() -> Result<()> {
     let path = "holder.db3";
@@ -66,15 +67,11 @@ fn select_all_property() -> Result<()> {
         })
     })?;
 
-
     for property in property_iter {
         println!("Found property {:?}", property.unwrap());
     }
-
-
     Ok(())
 }
-
 
 fn add_property() -> Property {
     // Данные об имуществе для внесения в БД
@@ -116,7 +113,6 @@ fn add_property() -> Property {
     io::stdin()
         .read_line(&mut serial_num)
         .expect("Ошибка ввода на этапе read_line");
-
 
 
     let serial_num: String = match serial_num.trim().parse() {
@@ -193,20 +189,8 @@ fn add_property() -> Property {
 
 
 fn main() {
-    let property = add_property();
-
-    create_db();
-
-    add_property_in_db(property);
-
-    select_all_property();
-
-    /*
-    println!("В БД добавлено имущество: {} - {} - {} - {}",
-             property.title,
-             property.kind,
-             property.serial_num,
-             property.receipt_date,
-    );
-    */
+    let property = add_property(); // создаем новое имущество
+    create_db(); // создаем (открываем) БД
+    add_property_in_db(property); // добавдяем имущество в БД
+    select_all_property(); // делаем выборку имущества из БД
 }
