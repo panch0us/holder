@@ -4,10 +4,11 @@ use chrono::{Datelike, DateTime, Local, NaiveDate};
 
 #[derive(Debug)]
 struct Property {
+    id: i32,
     title: String,
     kind: String,
     serial_num: String,
-    receipt_date: NaiveDate, // Дата получения имущества (вводится вручную)
+    receipt_date: String, // Дата получения имущества (вводится вручную)
 }
 /*
 struct Employee {
@@ -25,15 +26,15 @@ fn create_db() -> Result<()> {
     let conn = Connection::open(path).unwrap();
 
     conn.execute(
-        "CREATE TABLE property (
+        "CREATE TABLE IF NOT EXISTS property (
             id    INTEGER PRIMARY KEY,
+            title  TEXT NOT NULL,
             kind  TEXT NOT NULL,
             serial_num  TEXT NOT NULL,
             receipt_date TEXT NOT NULL
         )",
         (),
     )?;
-
     Ok(())
 }
 
@@ -43,10 +44,9 @@ fn add_property_in_db(property: Property) -> Result<()> {
 
     let property = property;
     conn.execute(
-        "INSERT INTO person (name, data, serial_num, receipt_date) VALUES (?1, ?2, ?3, ?4)",
-        (&property.title, &property.kind, &property.serial_num, &property.receipt_date.to_string()),
+        "INSERT INTO property (title, kind, serial_num, receipt_date) VALUES (?1, ?2, ?3, ?4)",
+        (&property.title, &property.kind, &property.serial_num, &property.receipt_date),
     )?;
-
     Ok(())
 }
 
@@ -56,9 +56,9 @@ fn select_all_property() -> Result<()> {
 
     let mut stmt = conn.prepare("SELECT id, title, kind, serial_num, receipt_date FROM property")?;
 
-
     let property_iter = stmt.query_map([], |row| {
         Ok(Property {
+            id: row.get(0)?,
             title: row.get(1)?,
             kind: row.get(2)?,
             serial_num: row.get(3)?,
@@ -66,9 +66,12 @@ fn select_all_property() -> Result<()> {
         })
     })?;
 
+
     for property in property_iter {
-        println!("Found person {:?}", property.unwrap());
+        println!("Found property {:?}", property.unwrap());
     }
+
+
     Ok(())
 }
 
@@ -87,7 +90,7 @@ fn add_property() -> Property {
         date_current.year(),
         date_current.month(),
         date_current.day())
-        .unwrap();
+        .unwrap().to_string();
 
     println!("Введите название имущества: ");
     io::stdin()
@@ -169,7 +172,7 @@ fn add_property() -> Property {
             year,
             month,
             day)
-            .unwrap();
+            .unwrap().to_string();
 
     } else if date_question == "y".to_string() || date_question == "д".to_string() {
         println!("Дата {} введена автоматически", receipt_date);
@@ -178,6 +181,7 @@ fn add_property() -> Property {
     }
 
     let property = Property {
+        id: 0,
         title: title,
         kind: kind,
         serial_num: serial_num,
@@ -189,12 +193,13 @@ fn add_property() -> Property {
 
 
 fn main() {
-    let conn = create_db();
-
     let property = add_property();
+
+    create_db();
 
     add_property_in_db(property);
 
+    select_all_property();
 
     /*
     println!("В БД добавлено имущество: {} - {} - {} - {}",
